@@ -6,7 +6,7 @@ OUTPUT_CSV="output.csv"
 
 # Set CSV Headers if the file does not exist
 if [ ! -f $OUTPUT_CSV ]; then
-    echo "category,code,riskLevel,diagnosisItem,diagnosisResult,status" > $OUTPUT_CSV
+    echo "category,code,riskLevel,diagnosisItem,service,diagnosisResult,status" > $OUTPUT_CSV
 fi
 
 # Initial Values
@@ -14,6 +14,7 @@ category="네트워크 보안"
 code="SRV-013"
 riskLevel="중"
 diagnosisItem="Anonymous FTP 접속 제한 설정 검사"
+service="FTP"
 diagnosisResult=""
 status=""
 
@@ -23,7 +24,7 @@ CODE="SRV-013"
 diagnosisItem="Anonymous 계정의 FTP 서비스 접속 제한 미비"
 
 # Write initial values to CSV
-echo "$category,$code,$riskLevel,$diagnosisItem,$diagnosisResult,$status" >> $OUTPUT_CSV
+echo "$category,$code,$riskLevel,$diagnosisItem,$service,$diagnosisResult,$status" >> $OUTPUT_CSV
 
 TMP1=$(basename "$0").log
 > $TMP1
@@ -110,7 +111,7 @@ fi
 diagnosisResult="Anonymous FTP (익명 ftp) 접속을 차단"
 status="양호"
 echo "OK: $diagnosisResult" >> $TMP1
-echo "$category,$code,$riskLevel,$diagnosisItem,$diagnosisResult,$status" >> $OUTPUT_CSV
+echo "$category,$code,$riskLevel,$diagnosisItem,$service,$diagnosisResult,$status" >> $OUTPUT_CSV
 
 cat $TMP1
 echo ; echo
