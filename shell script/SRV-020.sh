@@ -19,6 +19,9 @@ status=""
 
 BAR
 
+CODE="SRV-020"
+diagnosisItem="NFS/SMB/CIFS 공유의 접근 통제 미비"
+
 # Write initial values to CSV
 echo "$category,$CODE,$riskLevel,$diagnosisItem,$diagnosisResult,$status" >> $OUTPUT_CSV
 

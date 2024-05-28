@@ -6,7 +6,7 @@ OUTPUT_CSV="output.csv"
 
 # Set CSV Headers if the file does not exist
 if [ ! -f $OUTPUT_CSV ]; then
-    echo "category,code,riskLevel,diagnosisItem,diagnosisResult,status" > $OUTPUT_CSV
+    echo "category,code,riskLevel,diagnosisItem,service,diagnosisResult,status" > $OUTPUT_CSV
 fi
 
 # Initial Values
@@ -43,24 +43,11 @@ for file in "${ftpusers_files[@]}"; do
         ((file_exists_count++))
         ftpusers_file_owner_name=$(ls -l "$file" | awk '{print $3}')
         if [[ $ftpusers_file_owner_name == "root" ]]; then
-            ftpusers_file_permission=$(stat -c "%a" "$file")
-            if [ "$ftpusers_file_permission" -le 640 ]; then
-                ftpusers_file_owner_permission=$(stat -c "%A" "$file" | cut -c2-4)
-                ftpusers_file_group_permission=$(stat -c "%A" "$file" | cut -c5-7)
-                ftpusers_file_other_permission=$(stat -c "%A" "$file" | cut -c8-10)
-                if [[ $ftpusers_file_owner_permission =~ [rw-] && $ftpusers_file_group_permission =~ [r-] && $ftpusers_file_other_permission == "---" ]]; then
-                    continue
-                else
-                    diagnosisResult="$file 파일의 권한 설정이 잘못되었습니다."
-                    status="취약"
-                    echo "WARN: $diagnosisResult" >> $TMP1
-                    echo "$category,$CODE,$riskLevel,$diagnosisItem,$diagnosisResult,$status" >> $OUTPUT_CSV
-                    cat $TMP1
-                    echo ; echo
-                    exit 0
-                fi
+            ftpusers_file_permission=$(ls -l "$file" | awk '{print $1}')
+            if [ "${ftpusers_file_permission:1:3}" == "rw-" ] && [ "${ftpusers_file_permission:4:3}" == "r--" ] && [ "${ftpusers_file_permission:7:3}" == "---" ]; then
+                continue
             else
-                diagnosisResult="$file 파일의 권한이 640보다 큽니다."
+                diagnosisResult="$file 파일의 권한 설정이 잘못되었습니다."
                 status="취약"
                 echo "WARN: $diagnosisResult" >> $TMP1
                 echo "$category,$CODE,$riskLevel,$diagnosisItem,$diagnosisResult,$status" >> $OUTPUT_CSV
