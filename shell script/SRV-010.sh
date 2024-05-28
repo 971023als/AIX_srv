@@ -6,7 +6,7 @@ OUTPUT_CSV="output.csv"
 
 # Set CSV Headers if the file does not exist
 if [ ! -f $OUTPUT_CSV ]; then
-    echo "category,code,riskLevel,diagnosisItem,diagnosisResult,status" > $OUTPUT_CSV
+    echo "category,code,riskLevel,diagnosisItem,service,diagnosisResult,status" > $OUTPUT_CSV
 fi
 
 # Initial Values
@@ -14,6 +14,7 @@ category="시스템 관리"
 code="SRV-010"
 riskLevel="중"
 diagnosisItem="SMTP 메일 queue 처리 권한 설정 검사"
+service="Account Management"
 diagnosisResult=""
 status=""
 
@@ -56,30 +57,37 @@ else
 fi
 
 # Write the result to CSV for Sendmail
-echo "$category,$CODE,$riskLevel,$diagnosisItem,$service,$diagnosisResult,$status" >> $OUTPUT_CSV
+echo "$category,$CODE,$riskLevel,$diagnosisItem,Sendmail,$diagnosisResult,$status" >> $OUTPUT_CSV
 
 # Reset diagnosisResult and status for Postfix
 diagnosisResult=""
 status=""
 
 # Postfix 메일 queue 디렉터리 권한 확인
-POSTSUPER="/usr/sbin/postsuper"
-if [ -x "$POSTSUPER" ]; then
-    # others 권한 점검
-    if ls -l "$POSTSUPER" | grep -q "r-xr-x---"; then
-        diagnosisResult="Postfix의 postsuper 실행 파일이 others에 대해 실행 권한이 없습니다."
-        status="양호"
+POSTFIX_MAIN_CF="/etc/postfix/main.cf"
+if [ -f "$POSTFIX_MAIN_CF" ]; then
+    # Check if the user has permission to run postsuper
+    POSTSUPER="/usr/sbin/postsuper"
+    if [ -x "$POSTSUPER" ]; then
+        # Check if others have execute permission
+        if ls -l "$POSTSUPER" | grep -q "r-xr-x---"; then
+            diagnosisResult="Postfix의 postsuper 실행 파일이 others에 대해 실행 권한이 없습니다."
+            status="양호"
+        else
+            diagnosisResult="Postfix의 postsuper 실행 파일이 others에 대해 과도한 권한을 부여하고 있습니다."
+            status="취약"
+        fi
     else
-        diagnosisResult="Postfix의 postsuper 실행 파일이 others에 대해 과도한 권한을 부여하고 있습니다."
-        status="취약"
+        diagnosisResult="Postfix postsuper 실행 파일이 존재하지 않습니다."
+        status="정보 없음"
     fi
 else
-    diagnosisResult="Postfix postsuper 실행 파일이 존재하지 않습니다."
+    diagnosisResult="Postfix 설정 파일이 존재하지 않습니다."
     status="정보 없음"
 fi
 
 # Write the result to CSV for Postfix
-echo "$category,$CODE,$riskLevel,$diagnosisItem,$service,$diagnosisResult,$status" >> $OUTPUT_CSV
+echo "$category,$CODE,$riskLevel,$diagnosisItem,Postfix,$diagnosisResult,$status" >> $OUTPUT_CSV
 
 BAR
 

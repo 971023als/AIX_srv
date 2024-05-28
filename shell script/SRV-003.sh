@@ -6,7 +6,7 @@ OUTPUT_CSV="output.csv"
 
 # Set CSV Headers if the file does not exist
 if [ ! -f $OUTPUT_CSV ]; then
-    echo "category,code,riskLevel,diagnosisItem,diagnosisResult,status" > $OUTPUT_CSV
+    echo "category,code,riskLevel,diagnosisItem,service,diagnosisResult,status" > $OUTPUT_CSV
 fi
 
 # Initial Values
@@ -14,6 +14,7 @@ category="보안관리"
 code="SRV-003"
 riskLevel="중"
 diagnosisItem="SNMP 접근 통제 설정 검사"
+service="SNMP"
 diagnosisResult=""
 status=""
 
@@ -22,7 +23,7 @@ BAR
 diagnosisItem="SNMP 접근 통제 미설정"
 
 # SNMPD 설정 파일 경로
-SNMPD_CONF="/etc/snmp/snmpd.conf"
+SNMPD_CONF="/etc/snmpdv3.conf"
 ACCESS_CONTROL_STRING="com2sec"
 
 # SNMPD 설정 파일에서 com2sec가 적절하게 설정되었는지 확인합니다

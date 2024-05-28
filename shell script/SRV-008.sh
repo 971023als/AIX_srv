@@ -14,7 +14,6 @@ category="시스템 관리"
 code="SRV-008"
 riskLevel="중"
 diagnosisItem="SMTP 서비스 DoS 방지 기능 설정 검사"
-service="Account Management"
 diagnosisResult=""
 status=""
 

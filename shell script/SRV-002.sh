@@ -6,7 +6,7 @@ OUTPUT_CSV="output.csv"
 
 # Set CSV Headers if the file does not exist
 if [ ! -f $OUTPUT_CSV ]; then
-    echo "category,code,riskLevel,diagnosisItem,diagnosisResult,status" > $OUTPUT_CSV
+    echo "category,code,riskLevel,diagnosisItem,service,diagnosisResult,status" > $OUTPUT_CSV
 fi
 
 # Initial Values
@@ -14,6 +14,7 @@ category="보안관리"
 code="SRV-002"
 riskLevel="상"
 diagnosisItem="SNMP Set Community 스트링 검사"
+service="SNMP"
 diagnosisResult=""
 status=""
 
@@ -21,12 +22,15 @@ BAR
 
 diagnosisItem="SNMP 서비스 Set Community 스트링 설정 오류"
 
+# Write initial values to CSV
+echo "$category,$code,$riskLevel,$diagnosisItem,$service,$diagnosisResult,$status" >> $OUTPUT_CSV
+
 # SNMP service running check
 ps_snmp_count=$(ps -ef | grep -i 'snmp' | grep -v 'grep' | wc -l)
 
 if [ $ps_snmp_count -gt 0 ]; then
     # Check SNMP configuration file for Set Community string
-    snmpdconf_file="/etc/snmp/snmpd.conf" # Default path for Linux; adjust for other OS as needed
+    snmpdconf_file="/etc/snmpdv3.conf" # Default path for AIX; adjust for other OS as needed
     if [ -f "$snmpdconf_file" ]; then
         # Check for "public" or "private" strings being used
         if grep -qiE 'public|private' $snmpdconf_file; then

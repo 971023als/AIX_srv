@@ -6,7 +6,7 @@ OUTPUT_CSV="output.csv"
 
 # Set CSV Headers if the file does not exist
 if [ ! -f $OUTPUT_CSV ]; then
-    echo "category,code,riskLevel,diagnosisItem,diagnosisResult,status" > $OUTPUT_CSV
+    echo "category,code,riskLevel,diagnosisItem,service,diagnosisResult,status" > $OUTPUT_CSV
 fi
 
 # Initial Values
@@ -14,6 +14,7 @@ category="시스템 관리"
 code="SRV-009"
 riskLevel="중"
 diagnosisItem="SMTP 스팸 메일 릴레이 제한 설정 검사"
+service="Account Management"
 diagnosisResult=""
 status=""
 
@@ -52,7 +53,7 @@ if [ $smtp_port_count -gt 0 ]; then
             if [ $sendmailcf_relaying_denied_count -eq 0 ]; then
                 diagnosisResult="${sendmailcf_files[$i]} 파일에 릴레이 제한이 설정되어 있지 않습니다."
                 status="취약"
-                echo "$category,$CODE,$riskLevel,$diagnosisItem,$service,$diagnosisResult,$status" >> $OUTPUT_CSV
+                echo "$category,$CODE,$riskLevel,$diagnosisItem,Sendmail,$diagnosisResult,$status" >> $OUTPUT_CSV
                 cat $TMP1
                 echo ; echo
                 exit 0
@@ -68,7 +69,7 @@ if [ $smtp_port_count -gt 0 ]; then
         if [ -z "$relay_domains" ] || [ -z "$smtpd_recipient_restrictions" ]; then
             diagnosisResult="$postfix_main_cf 파일에 릴레이 제한이 설정되어 있지 않습니다."
             status="취약"
-            echo "$category,$CODE,$riskLevel,$diagnosisItem,$service,$diagnosisResult,$status" >> $OUTPUT_CSV
+            echo "$category,$CODE,$riskLevel,$diagnosisItem,Postfix,$diagnosisResult,$status" >> $OUTPUT_CSV
             cat $TMP1
             echo ; echo
             exit 0

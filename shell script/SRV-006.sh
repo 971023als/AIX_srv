@@ -6,7 +6,7 @@ OUTPUT_CSV="output.csv"
 
 # Set CSV Headers if the file does not exist
 if [ ! -f $OUTPUT_CSV ]; then
-    echo "category,code,riskLevel,diagnosisItem,diagnosisResult,status" > $OUTPUT_CSV
+    echo "category,code,riskLevel,diagnosisItem,service,diagnosisResult,status" > $OUTPUT_CSV
 fi
 
 # Initial Values
@@ -14,6 +14,7 @@ category="시스템 관리"
 code="SRV-006"
 riskLevel="중"
 diagnosisItem="SMTP 서비스 로그 수준 설정 검사"
+service="SMTP"
 diagnosisResult=""
 status=""
 

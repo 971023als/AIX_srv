@@ -21,7 +21,7 @@ status=""
 BAR
 
 # Write initial values to CSV
-echo "$category,$CODE,$riskLevel,$diagnosisItem,$service,$diagnosisResult,$status" >> $OUTPUT_CSV
+echo "$category,$code,$riskLevel,$diagnosisItem,$service,$diagnosisResult,$status" >> $OUTPUT_CSV
 
 # 결과 파일 초기화
 TMP1=$(basename "$0").log
@@ -37,24 +37,35 @@ EOF
 BAR
 
 # FTP 사용자 제한 설정 파일 경로
-FTP_USERS_FILE="/etc/vsftpd/ftpusers"
+FTP_USERS_FILES=("/etc/ftpusers" "/etc/vsftpd/ftpusers" "/etc/vsftpd/user_list" "/etc/vsftpd.user_list")
 
 # 'root' 계정의 FTP 접근 제한 여부 확인
-if [ -f "$FTP_USERS_FILE" ]; then
-    if grep -q "^root" "$FTP_USERS_FILE"; then
-        diagnosisResult="FTP 서비스에서 root 계정의 접근이 제한됩니다."
-        status="양호"
-    else
-        diagnosisResult="FTP 서비스에서 root 계정의 접근이 제한되지 않습니다."
-        status="취약"
+file_found=false
+root_restricted=false
+
+for FTP_USERS_FILE in "${FTP_USERS_FILES[@]}"; do
+    if [ -f "$FTP_USERS_FILE" ]; then
+        file_found=true
+        if grep -q "^root" "$FTP_USERS_FILE"; then
+            root_restricted=true
+            break
+        fi
     fi
-else
-    diagnosisResult="FTP 사용자 제한 설정 파일($FTP_USERS_FILE)이 존재하지 않습니다."
+done
+
+if [ "$file_found" = false ]; then
+    diagnosisResult="FTP 사용자 제한 설정 파일이 존재하지 않습니다."
     status="정보 없음"
+elif [ "$root_restricted" = true ]; then
+    diagnosisResult="FTP 서비스에서 root 계정의 접근이 제한됩니다."
+    status="양호"
+else
+    diagnosisResult="FTP 서비스에서 root 계정의 접근이 제한되지 않습니다."
+    status="취약"
 fi
 
 # Write the result to CSV
-echo "$category,$CODE,$riskLevel,$diagnosisItem,$service,$diagnosisResult,$status" >> $OUTPUT_CSV
+echo "$category,$code,$riskLevel,$diagnosisItem,$service,$diagnosisResult,$status" >> $OUTPUT_CSV
 
 BAR
 
