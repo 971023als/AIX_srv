@@ -6,7 +6,7 @@ OUTPUT_CSV="output.csv"
 
 # Set CSV Headers if the file does not exist
 if [ ! -f $OUTPUT_CSV ]; then
-    echo "category,code,riskLevel,diagnosisItem,diagnosisResult,status" > $OUTPUT_CSV
+    echo "category,code,riskLevel,diagnosisItem,service,diagnosisResult,status" > $OUTPUT_CSV
 fi
 
 # Initial Values
@@ -14,16 +14,14 @@ category="네트워크 보안"
 code="SRV-015"
 riskLevel="중"
 diagnosisItem="불필요한 NFS 서비스 실행 상태 검사"
+service="NFS"
 diagnosisResult=""
 status=""
 
 BAR
 
-CODE="SRV-015"
-diagnosisItem="불필요한 NFS 서비스 실행"
-
 # Write initial values to CSV
-echo "$category,$CODE,$riskLevel,$diagnosisItem,$diagnosisResult,$status" >> $OUTPUT_CSV
+echo "$category,$code,$riskLevel,$diagnosisItem,$service,$diagnosisResult,$status" >> $OUTPUT_CSV
 
 TMP1=$(basename "$0").log
 > $TMP1
@@ -37,6 +35,7 @@ EOF
 
 BAR
 
+# Check for unnecessary NFS services
 if [ $(ps -ef | grep -iE 'nfs|rpc.statd|statd|rpc.lockd|lockd' | grep -ivE 'grep|kblockd|rstatd' | wc -l) -gt 0 ]; then
     diagnosisResult="불필요한 NFS 서비스 관련 데몬이 실행 중입니다."
     status="취약"
@@ -48,7 +47,9 @@ else
 fi
 
 # Write the result to CSV
-echo "$category,$code,$riskLevel,$diagnosisItem,$diagnosisResult,$status" >> $OUTPUT_CSV
+echo "$category,$code,$riskLevel,$diagnosisItem,$service,$diagnosisResult,$status" >> $OUTPUT_CSV
+
+BAR
 
 cat $TMP1
 echo ; echo
