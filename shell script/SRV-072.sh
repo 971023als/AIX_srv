@@ -3,9 +3,9 @@
 . function.sh
 
 # Initialize CSV file
-CSV_FILE="$(basename "$0" .sh).csv"
+CSV_FILE="output.csv"
 if [ ! -f $CSV_FILE ]; then
-    echo "Category,Code,Risk Level,Diagnosis Item,DiagnosisResult,Status" > $CSV_FILE
+    echo "category,code,riskLevel,diagnosisItem,diagnosisResult,status" > $CSV_FILE
 fi
 
 BAR
