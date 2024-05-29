@@ -45,11 +45,11 @@ CONFIG_FILE="/etc/web_service/config"
 if grep -qE "username=admin|password=password" "$CONFIG_FILE"; then
     diagnosisResult="웹 서비스의 기본 계정(아이디 또는 비밀번호)이 변경되지 않았습니다: $CONFIG_FILE"
     status="취약"
-    WARN "$diagnosisResult" >> $TMP1
+    echo "WARN: $diagnosisResult" >> $TMP1
 else
     diagnosisResult="웹 서비스의 기본 계정(아이디 또는 비밀번호)이 변경되었습니다: $CONFIG_FILE"
     status="양호"
-    OK "$diagnosisResult" >> $TMP1
+    echo "OK: $diagnosisResult" >> $TMP1
 fi
 
 # Write the final result to CSV
