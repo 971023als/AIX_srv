@@ -20,6 +20,9 @@ STATUS=""
 
 BAR
 
+TMP1=$(basename "$0").log
+> $TMP1
+
 cat << EOF >> $TMP1
 [양호]: 시스템 주요 파일의 권한이 적절하게 설정된 경우
 [취약]: 시스템 주요 파일의 권한이 적절하게 설정되지 않은 경우
@@ -33,9 +36,6 @@ append_to_csv() {
     local status=$2
     echo "$CATEGORY,$CODE,$RISK_LEVEL,$DIAGNOSIS_ITEM,$SERVICE,$result,$status" >> $OUTPUT_CSV
 }
-
-TMP1=$(basename "$0").log
-> $TMP1
 
 # Check if PATH contains "." or "::"
 if [ $(echo $PATH | grep -E '\.:|::' | wc -l) -gt 0 ]; then
@@ -76,6 +76,7 @@ else
     done
 fi
 
+# 양호 상태를 추가합니다.
 append_to_csv "PATH 환경 변수에 '.' 또는 '::'이 포함되어 있지 않습니다." "양호"
 
 # Check for home directory permissions
