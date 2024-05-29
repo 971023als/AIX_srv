@@ -2,25 +2,31 @@
 
 . function.sh
 
-# Initialize CSV file
-CSV_FILE="output.csv"
+OUTPUT_CSV="output.csv"
 
 # Set CSV Headers if the file does not exist
-if [ ! -f $CSV_FILE ]; then
-    echo "Category,Code,Risk Level,Diagnosis Item,DiagnosisResult,Status" > $CSV_FILE
+if [ ! -f $OUTPUT_CSV ]; then
+    echo "category,code,riskLevel,diagnosisItem,service,diagnosisResult,status" > $OUTPUT_CSV
 fi
 
-BAR
-
+# Initial Values
 CATEGORY="시스템 유지 관리"
 CODE="SRV-118"
 RISK_LEVEL="고"
 DIAGNOSIS_ITEM="주기적인 보안패치 및 벤더 권고사항 미적용"
+SERVICE="시스템 유지 관리"
 DiagnosisResult=""
 Status=""
 
+BAR
+
+# Write initial values to CSV
+echo "$CATEGORY,$CODE,$RISK_LEVEL,$DIAGNOSIS_ITEM,$SERVICE,$DiagnosisResult,$Status" >> $OUTPUT_CSV
+
 TMP1=$(basename "$0").log
 > $TMP1
+
+BAR
 
 cat << EOF >> $TMP1
 [양호]: 최신 보안패치 및 업데이트가 적용된 경우
@@ -33,12 +39,12 @@ BAR
 append_to_csv() {
     local result=$1
     local status=$2
-    echo "$CATEGORY,$CODE,$RISK_LEVEL,$DIAGNOSIS_ITEM,$result,$status" >> $CSV_FILE
+    echo "$CATEGORY,$CODE,$RISK_LEVEL,$DIAGNOSIS_ITEM,$SERVICE,$result,$status" >> $OUTPUT_CSV
 }
 
 # Check system update status
-update_status=$(apt-get -s upgrade | grep "upgraded,")
-if [[ $update_status == *"0 upgraded"* ]]; then
+update_status=$(instfix -i | grep 'All filesets for' | grep 'were found')
+if [[ $update_status == *"were found"* ]]; then
   DiagnosisResult="모든 패키지가 최신 상태입니다."
   Status="양호"
 else
@@ -67,7 +73,7 @@ cat $TMP1
 
 echo ; echo
 
-cat $CSV_FILE
+cat $OUTPUT_CSV
 
-echo "CSV report generated: $CSV_FILE"
+echo "CSV report generated: $OUTPUT_CSV"
 echo ; echo
