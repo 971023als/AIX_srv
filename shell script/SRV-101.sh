@@ -2,25 +2,31 @@
 
 . function.sh
 
-# Initialize CSV file
-CSV_FILE="output.csv"
+OUTPUT_CSV="output.csv"
 
 # Set CSV Headers if the file does not exist
-if [ ! -f $CSV_FILE ]; then
-    echo "Category,Code,Risk Level,Diagnosis Item,Service,DiagnosisResult,Status" > $CSV_FILE
+if [ ! -f $OUTPUT_CSV ]; then
+    echo "category,code,riskLevel,diagnosisItem,service,diagnosisResult,status" > $OUTPUT_CSV
 fi
+
+# Initial Values
+category="시스템 유지 관리"
+code="SRV-101"
+riskLevel="낮음"
+diagnosisItem="불필요한 예약된 작업 존재"
+service="시스템 유지 관리"
+diagnosisResult=""
+status=""
 
 BAR
 
-CATEGORY="시스템 유지 관리"
-CODE="SRV-101"
-RISK_LEVEL="낮음"
-DIAGNOSIS_ITEM="불필요한 예약된 작업 존재"
-DiagnosisResult=""
-Status=""
+# Write initial values to CSV
+echo "$category,$code,$riskLevel,$diagnosisItem,$service,$diagnosisResult,$status" >> $OUTPUT_CSV
 
 TMP1=$(basename "$0").log
 > $TMP1
+
+BAR
 
 cat << EOF >> $TMP1
 [양호]: 불필요한 cron 작업이 존재하지 않는 경우
@@ -33,7 +39,7 @@ BAR
 append_to_csv() {
     local result=$1
     local status=$2
-    echo "$CATEGORY,$CODE,$RISK_LEVEL,$DIAGNOSIS_ITEM,시스템 유지 관리,$result,$status" >> $CSV_FILE
+    echo "$category,$code,$riskLevel,$diagnosisItem,$service,$result,$status" >> $OUTPUT_CSV
 }
 
 # Check all cron jobs on the system
@@ -57,5 +63,5 @@ check_cron_jobs
 
 cat $TMP1
 
-echo "CSV report generated: $CSV_FILE"
+echo "CSV report generated: $OUTPUT_CSV"
 echo ; echo
