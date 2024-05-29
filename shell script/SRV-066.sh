@@ -6,7 +6,7 @@ OUTPUT_CSV="output.csv"
 
 # Set CSV Headers if the file does not exist
 if [ ! -f $OUTPUT_CSV ]; then
-    echo "category,code,riskLevel,diagnosisItem,diagnosisResult,status" > $OUTPUT_CSV
+    echo "category,code,riskLevel,diagnosisItem,service,diagnosisResult,status" > $OUTPUT_CSV
 fi
 
 # Initial Values
@@ -14,20 +14,23 @@ category="네트워크 보안"
 code="SRV-066"
 riskLevel="중"
 diagnosisItem="DNS Zone 전송 설정 검사"
+service="DNS"
 diagnosisResult=""
 status=""
 
-# Define a temporary log file
+BAR
+
+CODE="SRV-066"
+diagnosisItem="DNS Zone 전송 설정 검사"
+
+# Write initial values to CSV
+echo "$category,$CODE,$riskLevel,$diagnosisItem,$service,$diagnosisResult,$status" >> $OUTPUT_CSV
+
 TMP1=$(basename "$0").log
 > $TMP1
 
-# Print bar (assuming BAR is a defined function)
 BAR
 
-# Print code and description
-echo "[SRV-066] DNS Zone 전송 설정 검사" >> $TMP1
-
-# Append evaluation criteria to the log file
 cat << EOF >> $TMP1
 [양호]: DNS Zone Transfer가 안전하게 제한되어 있는 경우
 [취약]: DNS Zone Transfer가 적절하게 제한되지 않은 경우
@@ -44,7 +47,7 @@ if [ $ps_dns_count -gt 0 ]; then
             diagnosisResult="/etc/named.conf 파일에 allow-transfer { any; } 설정이 있습니다."
             status="취약"
             echo "WARN: $diagnosisResult" >> $TMP1
-            echo "$category,$code,$riskLevel,$diagnosisItem,$diagnosisResult,$status" >> $OUTPUT_CSV
+            echo "$category,$code,$riskLevel,$diagnosisItem,$service,$diagnosisResult,$status" >> $OUTPUT_CSV
             cat $TMP1
             echo ; echo
             exit 0
@@ -57,7 +60,7 @@ status="양호"
 echo "OK: $diagnosisResult" >> $TMP1
 
 # Write the final result to CSV
-echo "$category,$code,$riskLevel,$diagnosisItem,$diagnosisResult,$status" >> $OUTPUT_CSV
+echo "$category,$code,$riskLevel,$diagnosisItem,$service,$diagnosisResult,$status" >> $OUTPUT_CSV
 
 cat $TMP1
 
