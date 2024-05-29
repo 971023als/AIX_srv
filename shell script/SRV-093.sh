@@ -40,7 +40,7 @@ append_to_csv() {
 world_writable_files=$(find / -type f -perm -2 2>/dev/null)
 
 if [ -n "$world_writable_files" ]; then
-    DiagnosisResult="world writable 설정이 되어있는 파일이 있습니다: $world_writable_files"
+    DiagnosisResult="world writable 설정이 되어있는 파일이 있습니다: $(echo $world_writable_files | tr '\n' ', ')"
     Status="취약"
     append_to_csv "$DiagnosisResult" "$Status"
     echo "WARN: $DiagnosisResult" >> $TMP1
