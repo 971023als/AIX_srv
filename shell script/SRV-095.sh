@@ -16,6 +16,7 @@ CATEGORY="파일 시스템 보안"
 CODE="SRV-095"
 RISK_LEVEL="높음"
 DIAGNOSIS_ITEM="소유자 또는 그룹 권한이 없는 파일 또는 디렉터리 존재"
+SERVICE="System Security"
 DiagnosisResult=""
 Status=""
 
@@ -33,7 +34,7 @@ BAR
 append_to_csv() {
     local result=$1
     local status=$2
-    echo "$CATEGORY,$CODE,$RISK_LEVEL,$DIAGNOSIS_ITEM,$result,$status" >> $CSV_FILE
+    echo "$CATEGORY,$CODE,$RISK_LEVEL,$DIAGNOSIS_ITEM,$SERVICE,$result,$status" >> $CSV_FILE
 }
 
 # Check for files or directories with non-existent owners or groups
