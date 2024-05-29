@@ -6,7 +6,7 @@ OUTPUT_CSV="output.csv"
 
 # Set CSV Headers if the file does not exist
 if [ ! -f $OUTPUT_CSV ]; then
-    echo "category,code,riskLevel,diagnosisItem,diagnosisResult,status" > $OUTPUT_CSV
+    echo "category,code,riskLevel,diagnosisItem,service,diagnosisResult,status" > $OUTPUT_CSV
 fi
 
 # Initial Values
@@ -14,6 +14,7 @@ category="시스템 보안"
 code="SRV-025"
 riskLevel="높음"
 diagnosisItem="hosts.equiv 및 .rhosts 파일 보안 검사"
+service="Account Management"
 diagnosisResult=""
 status=""
 
@@ -23,7 +24,7 @@ CODE="SRV-025"
 diagnosisItem="취약한 hosts.equiv 또는 .rhosts 설정 존재"
 
 # Write initial values to CSV
-echo "$category,$CODE,$riskLevel,$diagnosisItem,$diagnosisResult,$status" >> $OUTPUT_CSV
+echo "$category,$CODE,$riskLevel,$diagnosisItem,$service,$diagnosisResult,$status" >> $OUTPUT_CSV
 
 TMP1=$(basename "$0").log
 > $TMP1
@@ -72,7 +73,7 @@ if [ -f /etc/hosts.equiv ]; then
     if ! check_file_permissions /etc/hosts.equiv root; then
         diagnosisResult="r 계열 서비스를 사용하고, /etc/hosts.equiv 파일에 취약한 설정이 있습니다."
         status="취약"
-        echo "$category,$CODE,$riskLevel,$diagnosisItem,$diagnosisResult,$status" >> $OUTPUT_CSV
+        echo "$category,$CODE,$riskLevel,$diagnosisItem,$service,$diagnosisResult,$status" >> $OUTPUT_CSV
         cat $TMP1
         echo ; echo
         exit 0
@@ -89,7 +90,7 @@ for dir in "${user_homedirectories[@]}"; do
         if ! check_file_permissions "$dir/.rhosts" "$owner"; then
             diagnosisResult="r 계열 서비스를 사용하고, 사용자 홈 디렉터리 내 .rhosts 파일에 취약한 설정이 있습니다."
             status="취약"
-            echo "$category,$CODE,$riskLevel,$diagnosisItem,$diagnosisResult,$status" >> $OUTPUT_CSV
+            echo "$category,$CODE,$riskLevel,$diagnosisItem,$service,$diagnosisResult,$status" >> $OUTPUT_CSV
             cat $TMP1
             echo ; echo
             exit 0
@@ -105,7 +106,7 @@ if [ -d /etc/xinetd.d ]; then
             if ! grep -qE 'disable\s*=\s*yes' /etc/xinetd.d/$cmd; then
                 diagnosisResult="r 계열 서비스를 사용하고, /etc/xinetd.d 디렉터리 내 $cmd 서비스가 활성화되어 있습니다."
                 status="취약"
-                echo "$category,$CODE,$riskLevel,$diagnosisItem,$diagnosisResult,$status" >> $OUTPUT_CSV
+                echo "$category,$CODE,$riskLevel,$diagnosisItem,$service,$diagnosisResult,$status" >> $OUTPUT_CSV
                 cat $TMP1
                 echo ; echo
                 exit 0
@@ -120,7 +121,7 @@ if [ -f /etc/inetd.conf ]; then
         if grep -qvE '^#' /etc/inetd.conf | grep -q $cmd; then
             diagnosisResult="r 계열 서비스를 사용하고, /etc/inetd.conf 파일 내 $cmd 서비스가 활성화되어 있습니다."
             status="취약"
-            echo "$category,$CODE,$riskLevel,$diagnosisItem,$diagnosisResult,$status" >> $OUTPUT_CSV
+            echo "$category,$CODE,$riskLevel,$diagnosisItem,$service,$diagnosisResult,$status" >> $OUTPUT_CSV
             cat $TMP1
             echo ; echo
             exit 0
@@ -131,7 +132,7 @@ fi
 diagnosisResult="hosts.equiv 및 .rhosts 파일이 없거나, 안전하게 구성"
 status="양호"
 echo "OK: $diagnosisResult" >> $TMP1
-echo "$category,$CODE,$riskLevel,$diagnosisItem,$diagnosisResult,$status" >> $OUTPUT_CSV
+echo "$category,$CODE,$riskLevel,$diagnosisItem,$service,$diagnosisResult,$status" >> $OUTPUT_CSV
 
 cat $TMP1
 

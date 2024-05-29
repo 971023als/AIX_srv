@@ -14,13 +14,14 @@ category="시스템 관리"
 code="SRV-034"
 riskLevel="중"
 diagnosisItem="불필요한 서비스 활성화 검사"
+service="Service Management"
 diagnosisResult=""
 status=""
 
 BAR
 
 # Write initial values to CSV
-echo "$category,$CODE,$riskLevel,$diagnosisItem,$diagnosisResult,$status" >> $OUTPUT_CSV
+echo "$category,$code,$riskLevel,$diagnosisItem,$service,$diagnosisResult,$status" >> $OUTPUT_CSV
 
 TMP1=$(basename "$0").log
 > $TMP1
@@ -73,7 +74,7 @@ if [ "$service_active" = false ]; then
 fi
 
 # Write the final result to CSV
-echo "$category,$CODE,$riskLevel,$diagnosisItem,$diagnosisResult,$status" >> $OUTPUT_CSV
+echo "$category,$code,$riskLevel,$diagnosisItem,$service,$diagnosisResult,$status" >> $OUTPUT_CSV
 
 BAR
 

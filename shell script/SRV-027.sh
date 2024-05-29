@@ -6,7 +6,7 @@ OUTPUT_CSV="output.csv"
 
 # Set CSV Headers if the file does not exist
 if [ ! -f $OUTPUT_CSV ]; then
-    echo "category,code,riskLevel,diagnosisItem,diagnosisResult,status" > $OUTPUT_CSV
+    echo "category,code,riskLevel,diagnosisItem,service,diagnosisResult,status" > $OUTPUT_CSV
 fi
 
 # Initial Values
@@ -14,13 +14,14 @@ category="네트워크 보안"
 code="SRV-027"
 riskLevel="높음"
 diagnosisItem="서비스 접근 IP 및 포트 제한 설정 검사"
+service="Network Management"
 diagnosisResult=""
 status=""
 
 BAR
 
 # Write initial values to CSV
-echo "$category,$CODE,$riskLevel,$diagnosisItem,$diagnosisResult,$status" >> $OUTPUT_CSV
+echo "$category,$code,$riskLevel,$diagnosisItem,$service,$diagnosisResult,$status" >> $OUTPUT_CSV
 
 TMP1=$(basename "$0").log
 > $TMP1
@@ -42,7 +43,7 @@ if [ -f /etc/hosts.deny ]; then
         if [ -f /etc/hosts.allow ]; then
             etc_hostsallow_allall_count=$(grep -vE '^#|^\s#' /etc/hosts.allow | awk '{gsub(" ", "", $0); print}' | grep -i 'all:all' | wc -l)
             if [ $etc_hostsallow_allall_count -gt 0 ]; then
-                diagnosisResult="/etc/hosts.allow 파일에 'ALL : ALL' 설정이 있습니다."
+                diagnosisResult="/etc/hosts.allow 파일에 'ALL: ALL' 설정이 있습니다."
                 status="취약"
                 echo "WARN: $diagnosisResult" >> $TMP1
             else
@@ -56,7 +57,7 @@ if [ -f /etc/hosts.deny ]; then
             echo "OK: $diagnosisResult" >> $TMP1
         fi
     else
-        diagnosisResult="/etc/hosts.deny 파일에 'ALL : ALL' 설정이 없습니다."
+        diagnosisResult="/etc/hosts.deny 파일에 'ALL: ALL' 설정이 없습니다."
         status="취약"
         echo "WARN: $diagnosisResult" >> $TMP1
     fi
@@ -67,7 +68,7 @@ else
 fi
 
 # Write the final result to CSV
-echo "$category,$CODE,$riskLevel,$diagnosisItem,$diagnosisResult,$status" >> $OUTPUT_CSV
+echo "$category,$code,$riskLevel,$diagnosisItem,$service,$diagnosisResult,$status" >> $OUTPUT_CSV
 
 BAR
 
