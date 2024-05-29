@@ -6,7 +6,7 @@ OUTPUT_CSV="output.csv"
 
 # Set CSV Headers if the file does not exist
 if [ ! -f $OUTPUT_CSV ]; then
-    echo "category,code,riskLevel,diagnosisItem,diagnosisResult,status" > $OUTPUT_CSV
+    echo "category,code,riskLevel,diagnosisItem,service,diagnosisResult,status" > $OUTPUT_CSV
 fi
 
 # Initial Values
@@ -14,13 +14,14 @@ category="웹 보안"
 code="SRV-040"
 riskLevel="상"
 diagnosisItem="웹 서비스 디렉터리 리스팅 방지 설정 검사"
+service="Web Service"
 diagnosisResult=""
 status=""
 
 BAR
 
 # Write initial values to CSV
-echo "$category,$CODE,$riskLevel,$diagnosisItem,$diagnosisResult,$status" >> $OUTPUT_CSV
+echo "$category,$code,$riskLevel,$diagnosisItem,$service,$diagnosisResult,$status" >> $OUTPUT_CSV
 
 TMP1=$(basename "$0").log
 > $TMP1
@@ -49,7 +50,7 @@ check_directory_listing() {
                 diagnosisResult="Apache 설정 파일 $file에 디렉터리 검색 기능이 활성화되어 있습니다."
                 status="취약"
                 echo "WARN: $diagnosisResult" >> $TMP1
-                echo "$category,$CODE,$riskLevel,$diagnosisItem,$diagnosisResult,$status" >> $OUTPUT_CSV
+                echo "$category,$code,$riskLevel,$diagnosisItem,$service,$diagnosisResult,$status" >> $OUTPUT_CSV
                 cat $TMP1
                 echo ; echo
                 exit 0
@@ -61,7 +62,7 @@ check_directory_listing() {
             diagnosisResult="Apache 설정 파일 $file에 디렉터리 검색 기능이 활성화되어 있습니다."
             status="취약"
             echo "WARN: $diagnosisResult" >> $TMP1
-            echo "$category,$CODE,$riskLevel,$diagnosisItem,$diagnosisResult,$status" >> $OUTPUT_CSV
+            echo "$category,$code,$riskLevel,$diagnosisItem,$service,$diagnosisResult,$status" >> $OUTPUT_CSV
             cat $TMP1
             echo ; echo
             exit 0
@@ -80,7 +81,7 @@ done
 diagnosisResult="웹 서비스 디렉터리 리스팅이 적절하게 방지된 경우"
 status="양호"
 echo "OK: $diagnosisResult" >> $TMP1
-echo "$category,$CODE,$riskLevel,$diagnosisItem,$diagnosisResult,$status" >> $OUTPUT_CSV
+echo "$category,$code,$riskLevel,$diagnosisItem,$service,$diagnosisResult,$status" >> $OUTPUT_CSV
 
 cat $TMP1
 
