@@ -37,7 +37,7 @@ append_to_csv() {
 }
 
 # C 컴파일러 위치 확인
-COMPILER_PATH=$(which gcc)
+COMPILER_PATH=$(which gcc 2>/dev/null)
 
 # 컴파일러 존재 여부 및 권한 확인
 if [ -z "$COMPILER_PATH" ]; then
