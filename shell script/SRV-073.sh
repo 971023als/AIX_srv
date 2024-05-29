@@ -3,8 +3,10 @@
 . function.sh
 
 # Initialize CSV file
-CSV_FILE="$(basename "$0" .sh).csv"
-echo "Category,Code,Risk Level,Diagnosis Item,DiagnosisResult,Status" > $CSV_FILE
+CSV_FILE="output.csv"
+if [ ! -f $CSV_FILE ]; then
+    echo "category,code,riskLevel,diagnosisItem,service,diagnosisResult,status" > $CSV_FILE
+fi
 
 BAR
 
@@ -12,6 +14,7 @@ CATEGORY="네트워크 보안"
 CODE="SRV-073"
 RISK_LEVEL="높음"
 DIAGNOSIS_ITEM="관리자 그룹 내 사용자 멤버쉽 검사"
+SERVICE="Account Management"
 DiagnosisResult=""
 Status=""
 
@@ -29,22 +32,22 @@ BAR
 admin_group="sudo"
 
 # 관리자 그룹의 멤버 확인
-admin_members=$(getent group "$admin_group" | cut -d: -f4)
+admin_members=$(lsuser -a groups ALL | grep -w "$admin_group" | awk '{print $1}')
 
 # 예상되지 않은 사용자가 관리자 그룹에 있는지 확인
 # 여기서는 예시로 'testuser'를 사용하지만, 실제 환경에 맞게 수정 필요
 unnecessary_user="testuser"
 
-if [[ $admin_members == *"$unnecessary_user"* ]]; then
+if echo "$admin_members" | grep -q "$unnecessary_user"; then
     DiagnosisResult="관리자 그룹($admin_group)에 불필요한 사용자($unnecessary_user)가 포함되어 있습니다."
     Status="취약"
     echo "WARN: $DiagnosisResult" >> $TMP1
-    echo "$CATEGORY,$CODE,$RISK_LEVEL,$DIAGNOSIS_ITEM,$DiagnosisResult,$Status" >> $CSV_FILE
+    echo "$CATEGORY,$CODE,$RISK_LEVEL,$DIAGNOSIS_ITEM,$SERVICE,$DiagnosisResult,$Status" >> $CSV_FILE
 else
     DiagnosisResult="관리자 그룹($admin_group)에 불필요한 사용자가 없습니다."
     Status="양호"
     echo "OK: $DiagnosisResult" >> $TMP1
-    echo "$CATEGORY,$CODE,$RISK_LEVEL,$DIAGNOSIS_ITEM,$DiagnosisResult,$Status" >> $CSV_FILE
+    echo "$CATEGORY,$CODE,$RISK_LEVEL,$DIAGNOSIS_ITEM,$SERVICE,$DiagnosisResult,$Status" >> $CSV_FILE
 fi
 
 cat $TMP1
