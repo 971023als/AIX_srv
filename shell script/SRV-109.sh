@@ -2,25 +2,31 @@
 
 . function.sh
 
-# Initialize CSV file
-CSV_FILE="output.csv"
+OUTPUT_CSV="output.csv"
 
 # Set CSV Headers if the file does not exist
-if [ ! -f $CSV_FILE ]; then
-    echo "category,code,riskLevel,diagnosisItem,service,diagnosisResult,status" > $CSV_FILE
+if [ ! -f $OUTPUT_CSV ]; then
+    echo "category,code,riskLevel,diagnosisItem,service,diagnosisResult,status" > $OUTPUT_CSV
 fi
+
+# Initial Values
+category="시스템 로깅"
+code="SRV-109"
+riskLevel="중"
+diagnosisItem="시스템 주요 이벤트 로그 설정 미흡"
+service="시스템 로깅"
+diagnosisResult=""
+status=""
 
 BAR
 
-CATEGORY="시스템 로깅"
-CODE="SRV-109"
-RISK_LEVEL="중"
-DIAGNOSIS_ITEM="시스템 주요 이벤트 로그 설정 미흡"
-DiagnosisResult=""
-Status=""
+# Write initial values to CSV
+echo "$category,$code,$riskLevel,$diagnosisItem,$service,$diagnosisResult,$status" >> $OUTPUT_CSV
 
 TMP1=$(basename "$0").log
 > $TMP1
+
+BAR
 
 cat << EOF >> $TMP1
 [양호]: 주요 이벤트 로그 설정이 적절하게 구성되어 있는 경우
@@ -33,24 +39,25 @@ BAR
 append_to_csv() {
     local result=$1
     local status=$2
-    echo "$CATEGORY,$CODE,$RISK_LEVEL,$DIAGNOSIS_ITEM,시스템 로깅,$result,$status" >> $CSV_FILE
+    echo "$category,$code,$riskLevel,$diagnosisItem,$service,$result,$status" >> $OUTPUT_CSV
 }
 
-# Check the rsyslog configuration file
-filename="/etc/rsyslog.conf"
+# Check the syslog configuration file
+filename="/etc/syslog.conf"
 
 if [ ! -e "$filename" ]; then
-  DiagnosisResult="$filename 가 존재하지 않습니다"
-  Status="취약"
-  append_to_csv "$DiagnosisResult" "$Status"
+  diagnosisResult="$filename 가 존재하지 않습니다"
+  status="취약"
+  append_to_csv "$diagnosisResult" "$status"
 else
   expected_content=(
-    "*.info;mail.none;authpriv.none;cron.none /var/log/messages"
-    "authpriv.* /var/log/secure"
-    "mail.* /var/log/maillog"
-    "cron.* /var/log/cron"
-    "*.alert /dev/console"
-    "*.emerg *"
+    "*.info /var/log/messages"
+    "auth.info /var/log/authlog"
+    "mail.info /var/log/maillog"
+    "daemon.info /var/log/daemonlog"
+    "kern.info /var/log/kernlog"
+    "syslog.info /var/log/syslog"
+    "user.info /var/log/userlog"
   )
 
   match=0
@@ -61,17 +68,17 @@ else
   done
 
   if [ "$match" -eq "${#expected_content[@]}" ]; then
-    DiagnosisResult="$filename의 내용이 정확합니다."
-    Status="양호"
-    append_to_csv "$DiagnosisResult" "$Status"
+    diagnosisResult="$filename의 내용이 정확합니다."
+    status="양호"
+    append_to_csv "$diagnosisResult" "$status"
   else
-    DiagnosisResult="$filename의 내용이 잘못되었습니다."
-    Status="취약"
-    append_to_csv "$DiagnosisResult" "$Status"
+    diagnosisResult="$filename의 내용이 잘못되었습니다."
+    status="취약"
+    append_to_csv "$diagnosisResult" "$status"
   fi
 fi
 
 cat $TMP1
 
-echo "CSV report generated: $CSV_FILE"
+echo "CSV report generated: $OUTPUT_CSV"
 echo ; echo
