@@ -3,9 +3,9 @@
 . function.sh
 
 # Initialize CSV file
-CSV_FILE="$(basename "$0" .sh).csv"
+CSV_FILE="output.csv"
 if [ ! -f $CSV_FILE ]; then
-    echo "Category,Code,Risk Level,Diagnosis Item,DiagnosisResult,Status" > $CSV_FILE
+    echo "Category,Code,Risk Level,Diagnosis Item,Service,DiagnosisResult,Status" > $CSV_FILE
 fi
 
 BAR
@@ -14,6 +14,7 @@ CATEGORY="시스템 보안"
 CODE="SRV-080"
 RISK_LEVEL="중"
 DIAGNOSIS_ITEM="프린터 드라이버 설치 제한 검사"
+SERVICE="Printer Management"
 DiagnosisResult=""
 Status=""
 
@@ -31,7 +32,7 @@ BAR
 append_to_csv() {
     local result=$1
     local status=$2
-    echo "$CATEGORY,$CODE,$RISK_LEVEL,$DIAGNOSIS_ITEM,$result,$status" >> $CSV_FILE
+    echo "$CATEGORY,$CODE,$RISK_LEVEL,$DIAGNOSIS_ITEM,$SERVICE,$result,$status" >> $CSV_FILE
 }
 
 # CUPS 설정 파일 경로
@@ -42,12 +43,21 @@ if [ -f "$CUPS_CONFIG_FILE" ]; then
     system_group=$(grep -E "^SystemGroup" "$CUPS_CONFIG_FILE")
 
     if [ -n "$system_group" ]; then
-        append_to_csv "CUPS 설정에서 시스템 그룹이 지정됨: $system_group" "양호"
+        DiagnosisResult="CUPS 설정에서 시스템 그룹이 지정됨: $system_group"
+        Status="양호"
+        append_to_csv "$DiagnosisResult" "$Status"
+        echo "OK: $DiagnosisResult" >> $TMP1
     else
-        append_to_csv "CUPS 설정에서 시스템 그룹이 지정되지 않음" "취약"
+        DiagnosisResult="CUPS 설정에서 시스템 그룹이 지정되지 않음"
+        Status="취약"
+        append_to_csv "$DiagnosisResult" "$Status"
+        echo "WARN: $DiagnosisResult" >> $TMP1
     fi
 else
-    append_to_csv "CUPS 설정 파일($CUPS_CONFIG_FILE)이 존재하지 않습니다." "취약"
+    DiagnosisResult="CUPS 설정 파일($CUPS_CONFIG_FILE)이 존재하지 않습니다."
+    Status="취약"
+    append_to_csv "$DiagnosisResult" "$Status"
+    echo "WARN: $DiagnosisResult" >> $TMP1
 fi
 
 cat $TMP1

@@ -1,4 +1,4 @@
-=#!/bin/bash
+#!/bin/bash
 
 . function.sh
 
@@ -7,7 +7,7 @@ CSV_FILE="output.csv"
 
 # Set CSV Headers if the file does not exist
 if [ ! -f $CSV_FILE ]; then
-    echo "Category,Code,Risk Level,Diagnosis Item,Service,Diagnosis Result,Status" > $CSV_FILE
+    echo "Category,Code,Risk Level,Diagnosis Item,Service,DiagnosisResult,Status" > $CSV_FILE
 fi
 
 # Initial Values
@@ -102,9 +102,11 @@ for file in "${cron_files[@]}"; do
     fi
 done
 
+# 양호 상태를 추가합니다.
 append_to_csv "Crontab 설정 파일 권한이 적절히 설정되어 있습니다." "양호"
 
 cat $TMP1
 
 echo "CSV report generated: $CSV_FILE"
 echo ; echo
+cat $CSV_FILE
