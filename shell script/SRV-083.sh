@@ -20,6 +20,9 @@ STATUS=""
 
 BAR
 
+TMP1=$(basename "$0").log
+> $TMP1
+
 cat << EOF >> $TMP1
 [양호]: 시스템 스타트업 스크립트의 권한이 적절히 설정된 경우
 [취약]: 시스템 스타트업 스크립트의 권한이 적절히 설정되지 않은 경우
@@ -33,9 +36,6 @@ append_to_csv() {
     local status=$2
     echo "$CATEGORY,$CODE,$RISK_LEVEL,$DIAGNOSIS_ITEM,$SERVICE,$result,$status" >> $OUTPUT_CSV
 }
-
-TMP1=$(basename "$0").log
-> $TMP1
 
 # 시스템 스타트업 스크립트 디렉터리 목록
 STARTUP_DIRS=("/etc/init.d" "/etc/rc.d" "/etc/systemd" "/usr/lib/systemd")
