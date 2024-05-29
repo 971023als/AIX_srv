@@ -7,7 +7,7 @@ OUTPUT_CSV="output.csv"
 
 # Set CSV Headers if the file does not exist
 if [ ! -f $OUTPUT_CSV ]; then
-    echo "category,code,riskLevel,diagnosisItem,diagnosisResult,status" > $OUTPUT_CSV
+    echo "category,code,riskLevel,diagnosisItem,service,diagnosisResult,status" > $OUTPUT_CSV
 fi
 
 # Initial Values
@@ -15,6 +15,7 @@ category="웹 보안"
 code="SRV-048"
 riskLevel="상"
 diagnosisItem="불필요한 웹 서비스 실행 검사"
+service="Web Server"
 diagnosisResult=""
 status=""
 
@@ -40,16 +41,13 @@ BAR
 serverroot_directory=()
 webconf_files=(".htaccess" "httpd.conf" "apache2.conf")
 for webconf_file in "${webconf_files[@]}"; do
-    find_webconf_file_count=$(find / -name "$webconf_file" -type f 2>/dev/null | wc -l)
-    if [ $find_webconf_file_count -gt 0 ]; then
-        find_webconf_files=($(find / -name "$webconf_file" -type f 2>/dev/null))
-        for file in "${find_webconf_files[@]}"; do
-            webconf_serverroot_count=$(grep -vE '^#|^\s#' "$file" | grep 'ServerRoot' | grep '/' | wc -l)
-            if [ $webconf_serverroot_count -gt 0 ]; then
-                serverroot_directory+=($(grep -vE '^#|^\s#' "$file" | grep 'ServerRoot' | grep '/' | awk '{gsub(/"/, "", $0); print $2}'))
-            fi
-        done
-    fi
+    find_webconf_files=($(find / -name "$webconf_file" -type f 2>/dev/null))
+    for file in "${find_webconf_files[@]}"; do
+        webconf_serverroot_count=$(grep -vE '^#|^\s#' "$file" | grep 'ServerRoot' | grep '/' | wc -l)
+        if [ $webconf_serverroot_count -gt 0 ]; then
+            serverroot_directory+=($(grep -vE '^#|^\s#' "$file" | grep 'ServerRoot' | grep '/' | awk '{gsub(/"/, "", $0); print $2}'))
+        fi
+    done
 done
 
 apache2_serverroot_count=$(apache2 -V 2>/dev/null | grep -i 'root' | awk -F '"' '{gsub(" ", "", $0); print $2}' | wc -l)
@@ -68,7 +66,7 @@ for directory in "${serverroot_directory[@]}"; do
         diagnosisResult="Apache 홈 디렉터리 내 기본으로 생성되는 불필요한 파일 및 디렉터리가 제거되어 있지 않습니다."
         status="취약"
         echo "WARN: $diagnosisResult" >> $TMP1
-        echo "$category,$code,$riskLevel,$diagnosisItem,$diagnosisResult,$status" >> $OUTPUT_CSV
+        echo "$category,$code,$riskLevel,$diagnosisItem,$service,$diagnosisResult,$status" >> $OUTPUT_CSV
         cat $TMP1
         echo ; echo
         exit 0
@@ -80,7 +78,7 @@ status="양호"
 echo "OK: $diagnosisResult" >> $TMP1
 
 # Write the final result to CSV
-echo "$category,$code,$riskLevel,$diagnosisItem,$diagnosisResult,$status" >> $OUTPUT_CSV
+echo "$category,$code,$riskLevel,$diagnosisItem,$service,$diagnosisResult,$status" >> $OUTPUT_CSV
 
 cat $TMP1
 

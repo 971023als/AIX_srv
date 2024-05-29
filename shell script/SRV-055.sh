@@ -6,7 +6,7 @@ OUTPUT_CSV="output.csv"
 
 # Set CSV Headers if the file does not exist
 if [ ! -f $OUTPUT_CSV ]; then
-    echo "category,code,riskLevel,diagnosisItem,diagnosisResult,status" > $OUTPUT_CSV
+    echo "category,code,riskLevel,diagnosisItem,service,diagnosisResult,status" > $OUTPUT_CSV
 fi
 
 # Initial Values
@@ -14,13 +14,14 @@ category="웹 보안"
 code="SRV-055"
 riskLevel="상"
 diagnosisItem="웹 서비스 설정 파일 노출"
+service="Web Server"
 diagnosisResult=""
 status=""
 
 BAR
 
 # Write initial values to CSV
-echo "$category,$CODE,$riskLevel,$diagnosisItem,$diagnosisResult,$status" >> $OUTPUT_CSV
+echo "$category,$code,$riskLevel,$diagnosisItem,$service,$diagnosisResult,$status" >> $OUTPUT_CSV
 
 TMP1=$(basename "$0").log
 > $TMP1
@@ -47,18 +48,18 @@ check_permissions() {
     if ls -l "$file" | grep -qE "^-rw-------"; then
       diagnosisResult="$service 설정 파일($file)이 외부 접근으로부터 보호됩니다."
       status="양호"
-      OK "$diagnosisResult" >> $TMP1
+      echo "OK: $diagnosisResult" >> $TMP1
     else
       diagnosisResult="$service 설정 파일($file)의 접근 권한이 취약합니다."
       status="취약"
-      WARN "$diagnosisResult" >> $TMP1
+      echo "WARN: $diagnosisResult" >> $TMP1
     fi
   else
     diagnosisResult="$service 설정 파일($file)이 존재하지 않습니다."
-    status="정보"
-    INFO "$diagnosisResult" >> $TMP1
+    status="정보 없음"
+    echo "INFO: $diagnosisResult" >> $TMP1
   fi
-  echo "$category,$CODE,$riskLevel,$diagnosisItem,$diagnosisResult,$status" >> $OUTPUT_CSV
+  echo "$category,$code,$riskLevel,$diagnosisItem,$service,$diagnosisResult,$status" >> $OUTPUT_CSV
 }
 
 # Check Apache config file permissions
@@ -72,3 +73,5 @@ cat $TMP1
 echo ; echo
 
 cat $OUTPUT_CSV
+
+exit 0
