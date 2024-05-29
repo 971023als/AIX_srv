@@ -40,8 +40,8 @@ BAR
 WEB_SERVICE_PATH="/var/www/html" # 실제 경로에 맞게 조정하세요.
 
 # 웹 서비스 경로 내 파일 접근 권한 확인
-# 예: 파일 권한이 755 이상으로 설정되어 있는지 확인
-incorrect_permissions=$(find "$WEB_SERVICE_PATH" -type f ! -perm 755)
+# 예: 파일 권한이 644 이상으로 설정되어 있는지 확인
+incorrect_permissions=$(find "$WEB_SERVICE_PATH" -type f ! -perm 644)
 
 if [ -n "$incorrect_permissions" ]; then
     diagnosisResult="웹 서비스 경로 내에 부적절한 파일 권한이 있습니다."
