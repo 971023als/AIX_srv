@@ -6,7 +6,7 @@ OUTPUT_CSV="output.csv"
 
 # Set CSV Headers if the file does not exist
 if [ ! -f $OUTPUT_CSV ]; then
-    echo "category,code,riskLevel,diagnosisItem,diagnosisResult,status" > $OUTPUT_CSV
+    echo "category,code,riskLevel,diagnosisItem,service,diagnosisResult,status" > $OUTPUT_CSV
 fi
 
 # Initial Values
@@ -14,13 +14,14 @@ category="웹 보안"
 code="SRV-043"
 riskLevel="중"
 diagnosisItem="웹 서비스 경로 내 불필요한 파일 존재 검사"
+service="Web Service"
 diagnosisResult=""
 status=""
 
 BAR
 
 # Write initial values to CSV
-echo "$category,$CODE,$riskLevel,$diagnosisItem,$diagnosisResult,$status" >> $OUTPUT_CSV
+echo "$category,$code,$riskLevel,$diagnosisItem,$service,$diagnosisResult,$status" >> $OUTPUT_CSV
 
 TMP1=$(basename "$0").log
 > $TMP1
@@ -45,7 +46,7 @@ check_unnecessary_files() {
             diagnosisResult="불필요한 파일이 웹 서비스 경로에 존재합니다: $file"
             status="취약"
             echo "WARN: $diagnosisResult" >> $TMP1
-            echo "$category,$CODE,$riskLevel,$diagnosisItem,$diagnosisResult,$status" >> $OUTPUT_CSV
+            echo "$category,$code,$riskLevel,$diagnosisItem,$service,$diagnosisResult,$status" >> $OUTPUT_CSV
             cat $TMP1
             echo ; echo
             exit 0
@@ -74,7 +75,7 @@ done
 diagnosisResult="웹 서비스 경로에 불필요한 파일이 존재하지 않는 경우"
 status="양호"
 echo "OK: $diagnosisResult" >> $TMP1
-echo "$category,$CODE,$riskLevel,$diagnosisItem,$diagnosisResult,$status" >> $OUTPUT_CSV
+echo "$category,$code,$riskLevel,$diagnosisItem,$service,$diagnosisResult,$status" >> $OUTPUT_CSV
 
 cat $TMP1
 
