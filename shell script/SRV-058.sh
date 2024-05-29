@@ -6,7 +6,7 @@ OUTPUT_CSV="output.csv"
 
 # Set CSV Headers if the file does not exist
 if [ ! -f $OUTPUT_CSV ]; then
-    echo "category,code,riskLevel,diagnosisItem,diagnosisResult,status" > $OUTPUT_CSV
+    echo "category,code,riskLevel,diagnosisItem,service,diagnosisResult,status" > $OUTPUT_CSV
 fi
 
 # Initial Values
@@ -20,7 +20,7 @@ status=""
 BAR
 
 # Write initial values to CSV
-echo "$category,$CODE,$riskLevel,$diagnosisItem,$diagnosisResult,$status" >> $OUTPUT_CSV
+echo "$category,$code,$riskLevel,$diagnosisItem,$diagnosisResult,$status" >> $OUTPUT_CSV
 
 TMP1=$(basename "$0").log
 > $TMP1
@@ -44,16 +44,23 @@ check_script_mapping() {
   local service=$2
   local pattern=$3
 
-  if grep -E "$pattern" "$file"; then
-    diagnosisResult="$service에서 불필요한 스크립트 매핑이 발견됨: $file"
-    status="취약"
-    WARN "$diagnosisResult" >> $TMP1
+  if [ -f "$file" ]; then
+    if grep -qE "$pattern" "$file"; then
+      diagnosisResult="$service에서 불필요한 스크립트 매핑이 발견됨: $file"
+      status="취약"
+      echo "WARN: $diagnosisResult" >> $TMP1
+    else
+      diagnosisResult="$service에서 불필요한 스크립트 매핑이 발견되지 않음: $file"
+      status="양호"
+      echo "OK: $diagnosisResult" >> $TMP1
+    fi
+    echo "$category,$code,$riskLevel,$diagnosisItem,$service,$diagnosisResult,$status" >> $OUTPUT_CSV
   else
-    diagnosisResult="$service에서 불필요한 스크립트 매핑이 발견되지 않음: $file"
-    status="양호"
-    OK "$diagnosisResult" >> $TMP1
+    diagnosisResult="$service 설정 파일이 존재하지 않습니다: $file"
+    status="정보 없음"
+    echo "INFO: $diagnosisResult" >> $TMP1
+    echo "$category,$code,$riskLevel,$diagnosisItem,$service,$diagnosisResult,$status" >> $OUTPUT_CSV
   fi
-  echo "$category,$CODE,$riskLevel,$diagnosisItem,$diagnosisResult,$status" >> $OUTPUT_CSV
 }
 
 # Apache에서 스크립트 매핑 설정 확인
