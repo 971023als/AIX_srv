@@ -1,13 +1,12 @@
 #!/bin/bash
 
-# Load external functions from function.sh
 . function.sh
 
 OUTPUT_CSV="output.csv"
 
 # Set CSV Headers if the file does not exist
 if [ ! -f $OUTPUT_CSV ]; then
-    echo "category,code,riskLevel,diagnosisItem,diagnosisResult,status" > $OUTPUT_CSV
+    echo "category,code,riskLevel,diagnosisItem,service,diagnosisResult,status" > $OUTPUT_CSV
 fi
 
 # Initial Values
@@ -15,20 +14,23 @@ category="DNS 보안"
 code="SRV-062"
 riskLevel="중"
 diagnosisItem="DNS 서비스 정보 노출"
+service="DNS"
 diagnosisResult=""
 status=""
 
-# Define a temporary log file
+BAR
+
+CODE="SRV-062"
+diagnosisItem="DNS 서비스 정보 노출"
+
+# Write initial values to CSV
+echo "$category,$CODE,$riskLevel,$diagnosisItem,$service,$diagnosisResult,$status" >> $OUTPUT_CSV
+
 TMP1=$(basename "$0").log
 > $TMP1
 
-# Print bar (assuming BAR is a defined function)
 BAR
 
-# Print code and description
-echo "[SRV-062] DNS 서비스 정보 노출" >> $TMP1
-
-# Append evaluation criteria to the log file
 cat << EOF >> $TMP1
 [양호]: DNS 서비스 정보가 안전하게 보호되고 있는 경우
 [취약]: DNS 서비스 정보가 노출되고 있는 경우
@@ -40,7 +42,7 @@ BAR
 DNS_CONFIG_FILE="/etc/bind/named.conf"  # BIND 사용 예시, 실제 환경에 따라 달라질 수 있음
 
 # Check for version hiding option
-if grep -qE "version \"none\"" "$DNS_CONFIG_FILE"; then
+if grep -qE 'version[[:space:]]+"none"' "$DNS_CONFIG_FILE"; then
     diagnosisResult="DNS 서비스에서 버전 정보가 숨겨져 있습니다."
     status="양호"
     echo "OK: $diagnosisResult" >> $TMP1
@@ -62,7 +64,7 @@ else
 fi
 
 # Write the final result to CSV
-echo "$category,$code,$riskLevel,$diagnosisItem,$diagnosisResult,$status" >> $OUTPUT_CSV
+echo "$category,$CODE,$riskLevel,$diagnosisItem,$service,$diagnosisResult,$status" >> $OUTPUT_CSV
 
 cat $TMP1
 
